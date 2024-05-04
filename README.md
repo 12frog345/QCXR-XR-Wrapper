@@ -1,3 +1,6 @@
+# 
+This is a fork of QCXR for me to experement in and to learn about the inner workings of QuestCraft.
+
 # QCXR XR Wrapper
 [![GPLv3 License](https://img.shields.io/badge/License-GPLv3-green.svg)](https://choosealicense.com/licenses/gpl-3.0/)
 [![Build Wrapper](https://github.com/QuestCraftPlusPlus/QCXR-XR-Wrapper/actions/workflows/build.yml/badge.svg)](https://github.com/QuestCraftPlusPlus/QCXR-XR-Wrapper/actions/workflows/build.yml)
