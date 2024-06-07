@@ -9,7 +9,6 @@ using UnityEngine.UI;
 public class UIHandler : MonoBehaviour
 {
     public TextMeshProUGUI minuteHourText;
-    public TextMeshProUGUI secondText;
     public TMP_Dropdown dropdownMain;
     public TMP_Dropdown dropdownModSearch;
     public TMP_Dropdown dropdownModInfo;
@@ -21,6 +20,8 @@ public class UIHandler : MonoBehaviour
     public static int selectedInstance;
     static string pfpUrl;
     static string profileName;
+
+    public ModManager modManager;
 
     void Start()
     {
@@ -54,61 +55,38 @@ public class UIHandler : MonoBehaviour
     
     void Update()
     {
-        string time = System.DateTime.Now.ToString("hh:mm tt");
+        string time = DateTime.Now.ToString("hh:mm tt");
         minuteHourText.text = time;
     }
 
-    public static async Task GetTexturePlusName(RawImage pfpHolder, TextMeshProUGUI profileNameHolder)
+    public static async Task GetName(TextMeshProUGUI profileNameHolder)
     {
         if (JNIStorage.accountObj != null)
         {
-            pfpUrl ??= JNIStorage.apiClass.GetStatic<string>("profileImage");
             profileName ??= JNIStorage.apiClass.GetStatic<string>("profileName");
-
-            if (pfpHolder.texture == null)
-            {
-                using UnityWebRequest pfp = UnityWebRequestTexture.GetTexture(pfpUrl);
-                pfp.SetRequestHeader("User-Agent", "QuestCraft v5");
-                var requestTask = pfp.SendWebRequest();
-                Debug.Log("Making URL request for PFP...");
-
-                while (!requestTask.isDone)
-                {
-                    await Task.Yield();
-                }
-                
-                if (pfp.result != UnityWebRequest.Result.Success)
-                {
-                    Debug.Log(pfp.error);
-                }
-                else
-                {
-                    // Get downloaded texture
-                    var pfpTexture = DownloadHandlerTexture.GetContent(pfp);
-                    pfpHolder.texture = pfpTexture;
-                    profileNameHolder.text = profileName;
-                }
-            }
+            profileNameHolder.text = profileName;
         }
     }
 
     void OnToggleClicked(bool value, Toggle clickedToggle)
     {
+        if (modManager.isSearching)
+        {
+            clickedToggle.isOn = false;
+            return;
+        }
+        
         if (value)
         {
+            // Enable the toggles
+            Toggle[] allToggles = { modToggle, modpacksToggle, resourcePacksToggle };
+            foreach (Toggle toggle in allToggles)
+                toggle.interactable = true;
+
+            clickedToggle.isOn = false;
             // Disable the clicked toggle
             clickedToggle.interactable = false;
-
-            // Enable the rest of the toggles
-            Toggle[] allToggles = { modToggle, modpacksToggle, resourcePacksToggle};
-
-            foreach (Toggle toggle in allToggles)
-            {
-                if (toggle != clickedToggle)
-                {
-                    toggle.interactable = true;
-                }
-            }
+            modManager.SearchMods();
         }
     }
 
